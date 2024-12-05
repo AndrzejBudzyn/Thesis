@@ -4,6 +4,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\RecipeController;
+use App\Http\Controllers\CommentsController;
+use App\Http\Controllers\UserController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -17,9 +19,12 @@ use App\Http\Controllers\RecipeController;
 
 Route::post("/register", [AuthController::class, "register"]);
 Route::post("/login", [AuthController::class, "login"]);
-Route::post("/recipes",[RecipeController::class, "getAllRecipes"]);
+Route::get("/recipes",[RecipeController::class, "getAllRecipes"]);
+Route::get("/recipe/{id}",[RecipeController::class, "getRecipe"]);
+Route::get("/comments/{id}",[CommentsController::class, "getAllCommentsForRecipe"]);
 
 Route::middleware('auth:sanctum')->group(function (): void  {
     Route::post("/logout", [AuthController::class, "logout"]);
-   
+    Route::post("/comment",[CommentsController::class, "addCommentForRecipe"]);
+    Route::get("/getCurrentUser", [UserController::class, "getCurrentUser"]);
 });

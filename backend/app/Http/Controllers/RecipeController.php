@@ -31,4 +31,32 @@ class RecipeController extends Controller
             ], 500);
         }
     }
+
+    public function getRecipe($id)
+{
+    try {
+ 
+        $recipe = Recipe::find($id);
+
+        if (!$recipe) {
+            return response()->json([
+                "error" => "Recipe not found."
+            ], 404);
+        }
+
+        
+        $recipe->photo = $recipe->photo 
+            ? "data:image/jpeg;base64," . base64_encode($recipe->photo) 
+            : null;
+
+        
+        return response()->json($recipe, 200);
+    } catch (Exception $e) {
+       
+        return response()->json([
+            "error" => "Something went wrong.",
+            "message" => $e->getMessage(),
+        ], 500);
+    }
+}
 }

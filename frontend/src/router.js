@@ -1,5 +1,5 @@
 import React from "react";
-import {Navigate, createBrowserRouter} from "react-router-dom";
+import { createBrowserRouter} from "react-router-dom";
 import Home from "./pages/Home"; 
 import UserPanel from "./pages/UserPanel"; 
 import AdminPanel from "./pages/AdminPanel"; 
@@ -7,6 +7,7 @@ import App from "./pages/App";
 import AuthForm from "./pages/AuthForm"; 
 import DefaultLayout from './components/DefaultLayout';
 import GuestLayout from './components/GuestLayout';
+import RecipePage from './pages/RecipePage';
 
 
 const router =createBrowserRouter([
@@ -17,6 +18,10 @@ const router =createBrowserRouter([
       {
         path: '/search',
         element: <App />,
+      },
+      {
+        path: '/recipe/:id/:recipeName',
+        element: <RecipePage />,
       },
     {
         path: '/',
