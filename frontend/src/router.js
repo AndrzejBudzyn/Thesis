@@ -1,8 +1,7 @@
 import React from "react";
 import { createBrowserRouter} from "react-router-dom";
 import Home from "./pages/Home"; 
-import UserPanel from "./pages/UserPanel"; 
-import AdminPanel from "./pages/AdminPanel"; 
+import Profile from "./pages/Profile"; 
 import App from "./pages/App"; 
 import AuthForm from "./pages/AuthForm"; 
 import DefaultLayout from './components/DefaultLayout';
@@ -29,11 +28,7 @@ const router =createBrowserRouter([
         children: [
           {
             path: '/profile',
-            element: <UserPanel />,
-          },
-          {
-            path: '/admin',
-            element: <AdminPanel/>,
+            element: <Profile />,
           },
         ],
       },

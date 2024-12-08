@@ -11,16 +11,21 @@ use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
+
     public function getCurrentUser()
     {
-        if (Auth::check()) {
-            $user = Auth::user();
-
-            return response()->json(["user" => $user], 200);
+        $user = Auth::user();
+    
+        if ($user) {
+           
+            $userData = $user->only(['id', 'name', 'email', 'isAdmin']); 
+    
+            return response()->json(["user" => $userData], 200);
         }
-
-        return response()->json(["message" => "User not Auth"], 401);
+    
+        return response()->json(["message" => "User not authenticated"], 401);
     }
+    
 
   
 }

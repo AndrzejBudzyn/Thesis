@@ -42,6 +42,7 @@ const RecipePage = () => {
         axiosClient
             .get(`/getCurrentUser`)
             .then(({ data }) => {
+                console.log(data);
                 setUser(data.user); 
             })
             .catch((err) => {

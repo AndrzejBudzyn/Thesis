@@ -3,6 +3,8 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\AdminUserController;
+use App\Http\Controllers\AdminRecipeController;
 use App\Http\Controllers\RecipeController;
 use App\Http\Controllers\CommentsController;
 use App\Http\Controllers\UserController;
@@ -27,4 +29,8 @@ Route::middleware('auth:sanctum')->group(function (): void  {
     Route::post("/logout", [AuthController::class, "logout"]);
     Route::post("/comment",[CommentsController::class, "addCommentForRecipe"]);
     Route::get("/getCurrentUser", [UserController::class, "getCurrentUser"]);
+});
+
+Route::middleware(["auth:sanctum", "admin"])->group(function (): void {
+    Route::get("/users", [AdminUserController::class, "getAllUsers"]);
 });
