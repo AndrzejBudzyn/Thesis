@@ -28,7 +28,7 @@ const UserAdminPanel = () => {
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   const handleEditClick = (recipeId) => {
-    // Logika edycji przepisu, np. otwarcie formularza edycji
+  
     alert(`Edycja przepisu o ID: ${recipeId}`);
   };
 
@@ -55,7 +55,7 @@ const UserAdminPanel = () => {
               <img 
                 src={recipe.photo} 
                 alt={recipe.name} 
-                className="w-32 h-32 object-cover rounded-md mr-4" // Stały rozmiar obrazu z odstępem
+                className="w-32 h-32 object-cover rounded-md mr-4" 
               />
             )}
 

@@ -1,4 +1,10 @@
 import React, { useState } from 'react';
+import RecipeUserPanel from './UserPanel/RecipeUserPanel'; 
+import ToDoUserPanel from './UserPanel/ToDoUserPanel'; 
+import ShopListUserPanel from './UserPanel/ShopListUserPanel'; 
+import HistoryUserPanel from './UserPanel/HistoryUserPanel'; 
+import FavoriteUserPanel from './UserPanel/FavoriteUserPanel'; 
+
 
 const UserProfile = () => {
  
@@ -8,15 +14,15 @@ const UserProfile = () => {
   const renderContent = () => {
     switch (activeContent) {
       case 'doZrobienia':
-        return <div>Treść: Do zrobienia</div>;
+        return <ToDoUserPanel/>;
       case 'listyZakupow':
-        return <div>Treść: Listy zakupów</div>;
+        return <ShopListUserPanel/>;
       case 'ulubione':
-        return <div>Treść: Ulubione</div>;
+        return <FavoriteUserPanel/>;
       case 'historia':
-        return <div>Treść: Historia</div>;
+        return <HistoryUserPanel/>;
       case 'dodajPrzepis':
-        return <div>Treść: Dodaj przepis</div>;
+        return < RecipeUserPanel/>;
       default:
         return <div>Wybierz opcję z menu</div>;
     }
