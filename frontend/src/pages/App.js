@@ -43,7 +43,8 @@ const App = () => {
   const uniqueIngredients = [
     ...new Set(
       recipes.flatMap((r) =>
-        JSON.parse(r.ingredients).map((ing) => ing.ingredient)
+        // Parse the ingredients and only include items that have a valid 'ingredient' property
+        JSON.parse(r.ingredients).map((ing) => ing.ingredient).filter(Boolean)
       )
     ),
   ].filter((ingredient) =>

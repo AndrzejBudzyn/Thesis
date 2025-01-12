@@ -24,6 +24,7 @@ return new class extends Migration
             $table->enum('foodPreferences', ["Classic", "Vegetarian", "Vegan", "Semi-Vegetarian"]); 
             $table->integer('weeklyRecipeCount')->nullable();
             $table->boolean("isApproved");
+            $table->timestamps();
         });
     }
 

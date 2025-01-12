@@ -1,10 +1,32 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import { Blockquote } from "flowbite-react";
 import { motion } from "framer-motion";
+import axiosClient from "../axiosClient";
+
 
 const Home = () => {
+  const [recipes, setRecipes] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+   
+    const fetchRecipes = async () => {
+      try {
+        const response = await axiosClient("/recommendation");
+        setRecipes(response.data);
+        setLoading(false);
+      } catch (err) {
+        setError("Nie udało się pobrać przepisów.");
+        setLoading(false);
+      }
+    };
+
+    fetchRecipes();
+  }, []);
+
   return (
     <div className="flex flex-col min-h-screen bg-amber-100 relative">
       <Header />
@@ -12,7 +34,7 @@ const Home = () => {
       <section
         className="relative w-full h-[100vh] bg-cover bg-center flex flex-col items-center justify-center text-white"
         style={{
-          backgroundImage: `url('/hero.jpg')`, // Zdjecię zmienie jak znajde inne copyrights free i lepsze
+          backgroundImage: `url('/hero.jpg')`, // Zmień obraz na odpowiedni
         }}
       >
         <img
@@ -51,41 +73,39 @@ const Home = () => {
       </section>
 
       <main className="flex flex-col items-center flex-1 pt-16 px-4 sm:px-6 lg:px-8">
-        <section className="flex flex-col md:flex-row items-center w-full max-w-6xl mb-16">
-          <div className="w-full md:w-1/2 h-64 bg-gray-300 flex items-center justify-center rounded-md">
-            PHOTO
-          </div>
-          <div className="w-full md:w-1/2 bg-blue-100 h-64 p-6 rounded-md flex flex-col justify-center mt-6 md:mt-0 md:ml-6">
-            <p className="text-2xl font-semibold text-gray-700">
-              Odkryj przepisy na każdą okazję i stwórz listę zakupów w kilka
-              sekund!
-            </p>
-          </div>
-        </section>
-
         <h2 className="text-4xl font-bold mb-12 text-gray-800">
           Najpopularniejsze w tym tygodniu
         </h2>
-        <section className="flex items-center gap-6 max-w-screen-lg mx-auto">
-          <button className="p-3 bg-gray-700 text-white rounded-full hover:bg-gray-600 text-lg">
-            &lt;
-          </button>
-          <div className="flex gap-8">
-            {[...Array(3)].map((_, index) => (
-              <article key={index} className="flex flex-col items-center">
-                <div className="w-60 h-60 bg-gray-300 border-2 border-gray-600 rounded-md flex items-center justify-center">
-                  Zdjęcie
-                </div>
-                <p className="mt-4 text-lg text-gray-800 font-medium">
-                  Nazwa przepisu
-                </p>
-              </article>
-            ))}
-          </div>
-          <button className="p-3 bg-gray-700 text-white rounded-full hover:bg-gray-600 text-lg">
-            &gt;
-          </button>
-        </section>
+        {loading ? (
+          <p>Ładowanie...</p>
+        ) : error ? (
+          <p className="text-red-500">{error}</p>
+        ) : (
+          <section className="flex items-center gap-6 max-w-screen-lg mx-auto">
+            <button className="p-3 bg-gray-700 text-white rounded-full hover:bg-gray-600 text-lg">
+              &lt;
+            </button>
+            <div className="flex gap-8">
+              {recipes.map((recipe) => (
+                <article key={recipe.id} className="flex flex-col items-center">
+                  <div className="w-60 h-60 bg-gray-300 border-2 border-gray-600 rounded-md flex items-center justify-center overflow-hidden">
+                    <img
+                      src={recipe.photo || "/placeholder.jpg"}
+                      alt={recipe.name}
+                      className="object-cover w-full h-full"
+                    />
+                  </div>
+                  <p className="mt-4 text-lg text-gray-800 font-medium">
+                    {recipe.name}
+                  </p>
+                </article>
+              ))}
+            </div>
+            <button className="p-3 bg-gray-700 text-white rounded-full hover:bg-gray-600 text-lg">
+              &gt;
+            </button>
+          </section>
+        )}
       </main>
 
       <Footer />

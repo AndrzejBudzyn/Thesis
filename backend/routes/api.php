@@ -24,11 +24,19 @@ Route::post("/login", [AuthController::class, "login"]);
 Route::get("/recipes",[RecipeController::class, "getAllRecipes"]);
 Route::get("/recipe/{id}",[RecipeController::class, "getRecipe"]);
 Route::get("/comments/{id}",[CommentsController::class, "getAllCommentsForRecipe"]);
+Route::get("/recommendation",[RecipeController::class, "getTopWeeklyRecipes"]);
 
 Route::middleware('auth:sanctum')->group(function (): void  {
     Route::post("/logout", [AuthController::class, "logout"]);
     Route::post("/comment",[CommentsController::class, "addCommentForRecipe"]);
     Route::get("/getCurrentUser", [UserController::class, "getCurrentUser"]);
+    Route::post("/addrecipe", [RecipeController::class, "AddUserRecipe"]);
+    Route::post("/addTodo", [UserController::class, "addToToDoList"]);
+    Route::post("/addFavorites", [UserController::class, "addToFavorites"]);
+    Route::post("/removeTodo", [UserController::class, "removeFromToDo"]);
+    Route::post("/removeFavorites", [UserController::class, "removeFromFavorites"]);
+    Route::get("/getUserFavorites", [UserController::class, "getUserFavorites"]);
+    Route::get("/getUserToDo", [UserController::class, "getUserToDo"]);
 });
 
 Route::middleware(["auth:sanctum", "admin"])->group(function (): void {

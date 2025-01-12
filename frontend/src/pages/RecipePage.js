@@ -13,9 +13,10 @@ const RecipePage = () => {
     const { token } = useStateContext();
     const formattedName = recipeName.replace(/_/g, " ");
     const [user, setUser] = useState(null);
+    const [isInToDo, setIsInToDo] = useState(false);
+    const [isInFavorites, setIsInFavorites] = useState(false);
 
     useEffect(() => {
-       
         axiosClient
             .get(`/recipe/${recipeId}`)
             .then(({ data }) => {
@@ -28,7 +29,6 @@ const RecipePage = () => {
                 setError("Nie udało się załadować przepisu.");
             });
 
-       
         axiosClient
             .get(`/comments/${recipeId}`)
             .then(({ data }) => {
@@ -42,15 +42,58 @@ const RecipePage = () => {
         axiosClient
             .get(`/getCurrentUser`)
             .then(({ data }) => {
+                setUser(data.user);
                 console.log(data);
-                setUser(data.user); 
+                if (data.user) {
+                    
+                    setIsInFavorites(data.user.favorites?.includes(parseInt(recipeId)));
+
+                
+                    setIsInToDo(data.user.toDo?.includes(parseInt(recipeId)));
+                }
             })
             .catch((err) => {
                 console.error(err);
-                setError("Nie udało się pobrać danych użytkownika.");
             });
-
     }, [recipeId]);
+
+    const handleAddOrRemoveFromToDo = () => {
+        if (!user || !user.id) {
+            setError("Musisz być zalogowany, aby modyfikować listę zadań.");
+            return;
+        }
+
+        const action = isInToDo ? "removeTodo" : "addTodo";
+        axiosClient
+            .post(`/${action}`, { recipeId: parseInt(recipeId), userId: user.id })
+            .then(() => {
+                setIsInToDo(!isInToDo);
+                alert(isInToDo ? "Przepis usunięty z listy zadań!" : "Przepis dodany do listy zadań!");
+            })
+            .catch((err) => {
+                console.error(err);
+                setError("Nie udało się zmodyfikować listy zadań.");
+            });
+    };
+
+    const handleAddOrRemoveFromFavorites = () => {
+        if (!user || !user.id) {
+            setError("Musisz być zalogowany, aby modyfikować ulubione.");
+            return;
+        }
+
+        const action = isInFavorites ? "removeFavorites" : "addFavorites";
+        axiosClient
+            .post(`/${action}`, { recipeId: parseInt(recipeId), userId: user.id })
+            .then(() => {
+                setIsInFavorites(!isInFavorites);
+                alert(isInFavorites ? "Przepis usunięty z ulubionych!" : "Przepis dodany do ulubionych!");
+            })
+            .catch((err) => {
+                console.error(err);
+                setError("Nie udało się zmodyfikować ulubionych.");
+            });
+    };
 
     const handleAddComment = () => {
         if (!newComment.trim()) {
@@ -97,9 +140,28 @@ const RecipePage = () => {
                 <div className="w-full max-w-4xl bg-white rounded-lg shadow-md p-8">
                     <div className="flex justify-between items-center mb-8">
                         <h1 className="text-2xl font-bold">{formattedName}</h1>
-                        <button className="px-4 py-2 bg-blue-500 text-white rounded-lg">
-                            Dodaj do zrobienia
-                        </button>
+                        {user ? (
+                            <div className="flex space-x-4">
+                                <button
+                                    className={`px-4 py-2 ${
+                                        isInToDo ? "bg-red-500" : "bg-blue-500"
+                                    } text-white rounded-lg`}
+                                    onClick={handleAddOrRemoveFromToDo}
+                                >
+                                    {isInToDo ? "Usuń z listy zadań" : "Dodaj do zrobienia"}
+                                </button>
+                                <button
+                                    className={`px-4 py-2 ${
+                                        isInFavorites ? "bg-red-500" : "bg-yellow-500"
+                                    } text-white rounded-lg`}
+                                    onClick={handleAddOrRemoveFromFavorites}
+                                >
+                                    {isInFavorites ? "Usuń z ulubionych" : "Dodaj do ulubionych"}
+                                </button>
+                            </div>
+                        ) : (
+                            <p className="text-gray-600">Zaloguj się, aby korzystać z dodatkowych funkcji.</p>
+                        )}
                     </div>
 
                     <div className="grid grid-cols-2 gap-6 mb-8">
@@ -118,37 +180,45 @@ const RecipePage = () => {
                         <div className="border p-4">
                             <h2 className="text-lg font-bold mb-4">Składniki</h2>
                             {recipe.ingredients && recipe.ingredients.length > 0 ? (
-                                <ul className="list-disc ml-5">
-                                    {recipe.ingredients.map((item, index) => (
-                                        <li key={index}>
-                                            {item.ingredient}: {item.amount}
-                                        </li>
-                                    ))}
-                                </ul>
+                                recipe.ingredients.map((section, index) => (
+                                    <div key={index} className="mb-4">
+                                        <h3 className="font-semibold">{section.title}</h3>
+                                        <ul className="list-disc ml-5">
+                                            {section.items.map((item, i) => (
+                                                <li key={i}>{item}</li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                ))
                             ) : (
                                 <p className="text-gray-600">Brak składników</p>
                             )}
                         </div>
                     </div>
 
+                    <div className="mb-8 text-center">
+                        <p>{recipe.calories} kcal</p>
+                    </div>
+
                     <div className="border p-4 mb-8">
                         <h2 className="text-lg font-bold mb-4">Etapy przygotowania</h2>
                         {recipe.preparation && recipe.preparation.length > 0 ? (
-                            <ol className="list-decimal ml-5">
-                                {recipe.preparation.map((step, index) => (
-                                    <li key={index}>{step}</li>
-                                ))}
-                            </ol>
+                            recipe.preparation.map((section, index) => (
+                                <div key={index} className="mb-4">
+                                    <h3 className="font-semibold">{section.title}</h3>
+                                    <ol className="list-decimal ml-5">
+                                        {section.items.map((step, i) => (
+                                            <li key={i}>{step}</li>
+                                        ))}
+                                    </ol>
+                                </div>
+                            ))
                         ) : (
                             <p className="text-gray-600">Brak kroków przygotowania</p>
                         )}
                     </div>
-
-                    <div className="border p-4">
-                        <h2 className="text-lg font-bold mb-4">Kalorie</h2>
-                        <p>{recipe.calories} kcal</p>
-                    </div>
                 </div>
+
                 <div className="border p-4">
                     <h2 className="text-lg font-bold mb-4">Komentarze</h2>
                     {comments.length > 0 ? (

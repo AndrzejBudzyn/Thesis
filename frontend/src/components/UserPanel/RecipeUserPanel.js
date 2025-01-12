@@ -1,28 +1,37 @@
 import React, { useState } from 'react';
+import axiosClient from '../../axiosClient';
 
 const RecipeUserPanel = () => {
   const [formData, setFormData] = useState({
     name: '',
     photo: null,
     type: '',
-    category: '',
     calories: '',
-    ingredients: [],
-    steps: [],
+    kitchen: '',
+    foodPreferences: '',
   });
 
   const [ingredientSegments, setIngredientSegments] = useState([
-    { title: '', items: [''] },
+    { title: '', items: [{ name: '', quantity: '', unit: '' }] },
   ]);
   const [stepSegments, setStepSegments] = useState([{ title: '', items: [''] }]);
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState('');
+
+  const types = ['Śniadanie', 'Obiad', 'Kolacja', 'Deser'];
+  const kitchens = ['Polska', 'Włoska', 'Francuska', 'Chińska', 'Amerykańska'];
+  const foodPreferences = ['Classic','Vegetarian','Vegan','Semi-Vegetarian'];
+  const units = ['g', 'kg', 'ml', 'l', 'szt.'];
 
   const handleFileChange = (e) => {
     setFormData({ ...formData, photo: e.target.files[0] });
   };
 
-  // Dynamic handling for ingredient segments
   const handleAddIngredientSegment = () => {
-    setIngredientSegments([...ingredientSegments, { title: '', items: [''] }]);
+    setIngredientSegments([
+      ...ingredientSegments,
+      { title: '', items: [{ name: '', quantity: '', unit: '' }] },
+    ]);
   };
 
   const handleIngredientSegmentChange = (index, value) => {
@@ -31,19 +40,18 @@ const RecipeUserPanel = () => {
     setIngredientSegments(updatedSegments);
   };
 
-  const handleIngredientChange = (segmentIndex, itemIndex, value) => {
+  const handleIngredientChange = (segmentIndex, itemIndex, field, value) => {
     const updatedSegments = [...ingredientSegments];
-    updatedSegments[segmentIndex].items[itemIndex] = value;
+    updatedSegments[segmentIndex].items[itemIndex][field] = value;
     setIngredientSegments(updatedSegments);
   };
 
   const handleAddIngredientField = (segmentIndex) => {
     const updatedSegments = [...ingredientSegments];
-    updatedSegments[segmentIndex].items.push('');
+    updatedSegments[segmentIndex].items.push({ name: '', quantity: '', unit: '' });
     setIngredientSegments(updatedSegments);
   };
 
-  // Dynamic handling for step segments
   const handleAddStepSegment = () => {
     setStepSegments([...stepSegments, { title: '', items: [''] }]);
   };
@@ -66,23 +74,67 @@ const RecipeUserPanel = () => {
     setStepSegments(updatedSegments);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setFormData({
-      ...formData,
-      ingredients: ingredientSegments,
-      steps: stepSegments,
-    });
-    console.log('Submitting recipe:', {
-      ...formData,
-      ingredients: ingredientSegments,
-      steps: stepSegments,
-    });
+    setLoading(true);
+    setMessage('');
+
+    const data = new FormData();
+    data.append('name', formData.name);
+    if (formData.photo) {
+      data.append('photo', formData.photo);
+    }
+    data.append('type', formData.type);
+    data.append('calories', parseInt(formData.calories, 10));
+    data.append('kitchen', formData.kitchen || '');
+    data.append('foodPreferences', formData.foodPreferences || '');
+
+    const formattedIngredients = ingredientSegments.map((segment) => ({
+      title: segment.title || null,
+      items: segment.items.map((item) => item.name || null),
+    }));
+    data.append('ingredients', JSON.stringify(formattedIngredients));
+
+    const formattedPreparation = stepSegments.map((segment) => ({
+      title: segment.title || null,
+      items: segment.items.map((step) => step || null),
+    }));
+    data.append('preparation', JSON.stringify(formattedPreparation));
+
+    try {
+      const response = await axiosClient.post('/addrecipe', data, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      setMessage('Przepis został zapisany pomyślnie!');
+      setFormData({
+        name: '',
+        photo: null,
+        type: '',
+        calories: '',
+        kitchen: '',
+        foodPreferences: '',
+      });
+      setIngredientSegments([{ title: '', items: [{ name: '', quantity: '', unit: '' }] }]);
+      setStepSegments([{ title: '', items: [''] }]);
+    } catch (error) {
+      if (error.response && error.response.data) {
+        setMessage(error.response.data.message || 'Wystąpił błąd podczas zapisywania przepisu.');
+      } else {
+        setMessage('Wystąpił nieznany błąd. Spróbuj ponownie.');
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 p-6 bg-white rounded-md shadow-md max-w-4xl mx-auto">
-      {/* Dodaj zdjęcie */}
+    <form
+      onSubmit={handleSubmit}
+      className="space-y-4 p-6 bg-white rounded-md shadow-md max-w-4xl mx-auto"
+    >
       <div className="flex items-center">
         <div>
           <label className="block">Dodaj zdjęcie</label>
@@ -97,22 +149,19 @@ const RecipeUserPanel = () => {
         />
       </div>
 
-      {/* Typ, kategoria, kalorie */}
       <div className="grid grid-cols-3 gap-4">
-        <input
-          type="text"
-          placeholder="Typ"
+        <select
           value={formData.type}
           onChange={(e) => setFormData({ ...formData, type: e.target.value })}
           className="p-2 border rounded-md"
-        />
-        <input
-          type="text"
-          placeholder="Kategoria"
-          value={formData.category}
-          onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-          className="p-2 border rounded-md"
-        />
+        >
+          <option value="">Wybierz typ</option>
+          {types.map((type) => (
+            <option key={type} value={type}>
+              {type}
+            </option>
+          ))}
+        </select>
         <input
           type="number"
           placeholder="Kalorie"
@@ -120,6 +169,33 @@ const RecipeUserPanel = () => {
           onChange={(e) => setFormData({ ...formData, calories: e.target.value })}
           className="p-2 border rounded-md"
         />
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <select
+          value={formData.kitchen}
+          onChange={(e) => setFormData({ ...formData, kitchen: e.target.value })}
+          className="p-2 border rounded-md"
+        >
+          <option value="">Wybierz kuchnię</option>
+          {kitchens.map((kitchen) => (
+            <option key={kitchen} value={kitchen}>
+              {kitchen}
+            </option>
+          ))}
+        </select>
+        <select
+          value={formData.foodPreferences}
+          onChange={(e) => setFormData({ ...formData, foodPreferences: e.target.value })}
+          className="p-2 border rounded-md"
+        >
+          <option value="">Wybierz preferencje</option>
+          {foodPreferences.map((preference) => (
+            <option key={preference} value={preference}>
+              {preference}
+            </option>
+          ))}
+        </select>
       </div>
 
       {/* Składniki */}
@@ -135,14 +211,39 @@ const RecipeUserPanel = () => {
               className="block mt-2 p-2 border rounded-md w-full"
             />
             {segment.items.map((item, itemIndex) => (
-              <div key={itemIndex} className="flex space-x-2 mt-2">
+              <div key={itemIndex} className="grid grid-cols-3 gap-2 mt-2">
                 <input
                   type="text"
-                  placeholder={`Składnik ${itemIndex + 1}`}
-                  value={item}
-                  onChange={(e) => handleIngredientChange(segmentIndex, itemIndex, e.target.value)}
-                  className="p-2 border rounded-md w-full"
+                  placeholder="Nazwa składnika"
+                  value={item.name}
+                  onChange={(e) =>
+                    handleIngredientChange(segmentIndex, itemIndex, 'name', e.target.value)
+                  }
+                  className="p-2 border rounded-md"
                 />
+                <input
+                  type="number"
+                  placeholder="Ilość"
+                  value={item.quantity}
+                  onChange={(e) =>
+                    handleIngredientChange(segmentIndex, itemIndex, 'quantity', e.target.value)
+                  }
+                  className="p-2 border rounded-md"
+                />
+                <select
+                  value={item.unit}
+                  onChange={(e) =>
+                    handleIngredientChange(segmentIndex, itemIndex, 'unit', e.target.value)
+                  }
+                  className="p-2 border rounded-md"
+                >
+                  <option value="">Jednostka</option>
+                  {units.map((unit) => (
+                    <option key={unit} value={unit}>
+                      {unit}
+                    </option>
+                  ))}
+                </select>
               </div>
             ))}
             <button
@@ -205,9 +306,15 @@ const RecipeUserPanel = () => {
       </div>
 
       {/* Zapisz przepis */}
-      <button type="submit" className="bg-green-500 text-white px-4 py-2 rounded-md">
-        Zapisz przepis
+      <button
+        type="submit"
+        className="bg-green-500 text-white px-4 py-2 rounded-md"
+        disabled={loading}
+      >
+        {loading ? 'Zapisywanie...' : 'Zapisz przepis'}
       </button>
+
+      {message && <p className="mt-4 text-center text-lg font-semibold">{message}</p>}
     </form>
   );
 };
