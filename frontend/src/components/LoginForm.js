@@ -1,11 +1,10 @@
-import React, { useRef, useState } from "react";
-import axiosClient from '../axiosClient';
+import React, { useRef } from "react";
+import axiosClient from "../axiosClient";
 import { useStateContext } from "../contexts/ContextProvider";
+import { Label, TextInput, Button } from "flowbite-react";
 
 const Login = ({ setAuthMode }) => {
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
-  const {setUser,setToken}=useStateContext();
+  const { setUser, setToken } = useStateContext();
 
   const loginOrEmailRef = useRef(null);
   const passwordRef = useRef(null);
@@ -18,48 +17,68 @@ const Login = ({ setAuthMode }) => {
       password: passwordRef.current.value,
     };
 
-    axiosClient.post('/login',payload)
-    .then(({data})=>{
-      setUser(data.user)
-      setToken(data.token)
-    })
-    .catch(err=>{
-      console.log(err);
-    })
+    axiosClient
+      .post("/login", payload)
+      .then(({ data }) => {
+        setUser(data.user);
+        setToken(data.token);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   return (
-    <div>
-      <h2>Login</h2>
-      {error && <p style={{ color: "red" }}>{error}</p>}
-      {success && <p style={{ color: "green" }}>{success}</p>}
-      <form onSubmit={handleSubmit}>
+    <div className="max-w-md mx-auto mt-16 p-16 bg-yellow-50 rounded-lg shadow-md">
+      <h2 className="text-3xl font-bold text-center text-brown-800 mb-6">
+        Zaloguj się
+      </h2>
+
+      <form onSubmit={handleSubmit} className="space-y-6 mt-12">
         <div>
-          <label htmlFor="login_or_email">Login or Email</label>
-          <input
-            type="text"
+          <Label htmlFor="login_or_email" className="mb-2 block text-brown-800">
+            Login lub Email
+          </Label>
+          <TextInput
             id="login_or_email"
             name="login_or_email"
             ref={loginOrEmailRef}
+            placeholder="Podaj login lub email"
             required
+            className="text-brown-800 shadow-md"
           />
         </div>
+
         <div>
-          <label htmlFor="password">Password</label>
-          <input
-            type="password"
+          <Label htmlFor="password" className="mb-2 block text-brown-800">
+            Hasło
+          </Label>
+          <TextInput
             id="password"
             name="password"
+            type="password"
             ref={passwordRef}
+            placeholder="Podaj hasło"
             required
+            className="text-brown-800 shadow-md"
           />
         </div>
-        <button type="submit">Login</button>
+
+        <Button
+          type="submit"
+          className="w-full bg-orange-500 hover:bg-orange-600 text-white"
+        >
+          Zaloguj się
+        </Button>
       </form>
-      <div>
-        <button onClick={() => setAuthMode("register")}>
-          Don't have an account? Register
-        </button>
+
+      <div className="mt-4 text-center">
+        <button
+          onClick={() => setAuthMode("register")}
+          className="text-orange-500 hover:underline"
+        >
+          Nie masz konta? Zarejestruj się 
+        </button>  {/* ty właściwe to ja mam po polsku czy po ang pisać ? friz się wkurzy jak będziesz miał po ang */}
       </div>
     </div>
   );

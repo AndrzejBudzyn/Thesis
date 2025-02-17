@@ -1,91 +1,81 @@
 import React from "react";
+import { Navbar, Button } from "flowbite-react";
 import { Link } from "react-router-dom";
 import { useStateContext } from "../contexts/ContextProvider";
-import axiosClient from '../axiosClient';
+import axiosClient from "../axiosClient";
 
 export default function Header() {
   const { token, setToken } = useStateContext();
 
   const handleLogout = async () => {
-     
-      axiosClient.post("logout")
+    axiosClient
+      .post("logout")
       .then(({ data }) => {
-        setToken(null); 
+        setToken(null);
         console.log(data);
       })
       .catch((err) => {
         console.error(err);
       });
-
-  
   };
 
   return (
-    <header className="fixed top-0 left-0 w-full flex items-center justify-between bg-black bg-opacity-50 px-4 sm:px-5 md:px-6 lg:px-8 xl:px-10 py-2 z-10">
-      <div className="flex items-center">
-      
-        <img
-          src="/path/to/logo.png" 
-          alt="Logo"
-          className="h-8 sm:h-10 md:h-12 lg:h-14 xl:h-16"
-        />
-      </div>
+    <Navbar fluid rounded className="bg-yellow-100 border-b border-gray-300 p-7">
+      <div className="flex w-full items-center justify-between">
+        <Navbar.Brand href="/">
+          <img
+            src="/Logo.png"
+            className="mr-8 h-8 sm:h-16"
+            alt="Przepisi Logo"
+          />
+          <span className="self-center whitespace-nowrap text-2xl font-semibold text-amber-500">
+            Przepisi
+          </span>
+        </Navbar.Brand>
 
-   
-      <nav className="flex-grow font-body md:block">
-        <ul className="flex justify-end">
-          <li className="text-white font-semibold mx-2">
-            <Link
-              to="/"
-              className="hover:text-gray-300 text-green-500"
-              aria-label="Home"
+        <div className="flex flex-grow justify-center space-x-10">
+          <Navbar.Link
+            as={Link}
+            to="/"
+            className="text-brown-800 hover:text-orange-500"
+          >
+            Strona główna
+          </Navbar.Link>
+          <Navbar.Link
+            as={Link}
+            to="/search"
+            className="text-brown-800 hover:text-orange-500"
+          >
+            Wyszukaj
+          </Navbar.Link>
+          {token && (
+            <Navbar.Link
+              as={Link}
+              to="/profile"
+              className="text-brown-800 hover:text-orange-500"
             >
-              Home
-            </Link>
-          </li>
-          <li className="text-white font-semibold mx-2">
-            <Link
-              to="/search"
-              className="hover:text-gray-300 text-green-500"
-              aria-label="Home"
-            >
-              Serach
-            </Link>
-          </li>
-          {token ? (
-            <>
-              <li className="text-white font-semibold mx-2">
-                <Link
-                  to="/profile"
-                  className="hover:text-gray-300 text-blue-500"
-                  aria-label="Profile"
-                >
-                  Profile
-                </Link>
-              </li>
-              <li className="text-white font-semibold mx-2">
-                <button
-                  onClick={handleLogout}
-                  className="hover:text-gray-300 text-red-500"
-                  aria-label="Logout"
-                >
-                  Logout
-                </button>
-              </li>
-            </>
-          ) : (
-            <li className="text-white font-semibold mx-2">
-              <Link
-                to="/auth"
-                className="hover:text-gray-300 text-green-500"
-                aria-label="Login"
-              >
-                Login
-              </Link>
-            </li>
+              Profil
+            </Navbar.Link>
           )}
-        </ul>
-      </nav>
-    </header>
+        </div>
+
+        <div className="flex items-center">
+          {token ? (
+            <Button
+              className="bg-red-500 hover:bg-red-600 text-white"
+              onClick={handleLogout}
+            >
+              Wyloguj się
+            </Button>
+          ) : (
+            <Link to="/auth">
+              <Button className="bg-[#FF914D] hover:bg-orange-600 text-white">
+                Get started
+              </Button>
+            </Link>
+          )}
+        </div>
+      </div>
+    </Navbar>
   );
 }

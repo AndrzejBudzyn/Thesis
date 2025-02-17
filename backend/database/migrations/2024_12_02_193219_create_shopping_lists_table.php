@@ -17,6 +17,7 @@ return new class extends Migration
             $table->integer('recipeId');
             $table->string('recipeName');
             $table->json('ingredients');
+            $table->timestamps();
         });
     }
 

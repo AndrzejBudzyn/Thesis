@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
 import Header from "../components/Header";
 import axiosClient from "../axiosClient";
+import { useNavigate } from "react-router-dom";
 
 const App = () => {
+  const navigate = useNavigate();
   const [recipes, setRecipes] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [ingredientSearchQuery, setIngredientSearchQuery] = useState("");
@@ -17,7 +19,7 @@ const App = () => {
 
   useEffect(() => {
     axiosClient
-      .post("/recipes")
+      .get("/recipes")
       .then(({ data }) => {
         setRecipes(data);
       })
@@ -27,6 +29,10 @@ const App = () => {
       });
   }, []);
 
+      const formatLink = (name, id) => {
+        const formattedName = name.replace(/\s+/g, "_");
+        return `/recipe/${id}/${formattedName}`;
+      };
 
   const uniqueTypes = [...new Set(recipes.map((r) => r.type))];
   const uniqueKitchens = [
@@ -37,7 +43,8 @@ const App = () => {
   const uniqueIngredients = [
     ...new Set(
       recipes.flatMap((r) =>
-        JSON.parse(r.ingredients).map((ing) => ing.ingredient)
+        // Parse the ingredients and only include items that have a valid 'ingredient' property
+        JSON.parse(r.ingredients).map((ing) => ing.ingredient).filter(Boolean)
       )
     ),
   ].filter((ingredient) =>
@@ -227,26 +234,27 @@ const App = () => {
             ) : filteredRecipes.length > 0 ? (
               filteredRecipes.map((recipe) => (
                 <div
-                  key={recipe.id}
-                  className="p-4 border-b border-gray-300 flex items-center"
-                >
-                  <img
-                    src={recipe.photo}
-                    alt={recipe.name}
-                    className="w-16 h-16 mr-4 object-cover rounded"
-                  />
-                  <div>
-                    <h3 className="font-bold text-lg">{recipe.name}</h3>
-                    <p className="text-sm text-gray-600">
-                      {recipe.kitchen} | {recipe.type}
-                    </p>
-                   
-                    <p className="text-sm text-gray-500 mt-2">
-                      <strong>Preferencje:</strong> {recipe.foodPreferences}
-                    </p>
-                    <p className="text-sm text-gray-500">
-                      <strong>Kalorie:</strong> {recipe.calories} kcal
-                    </p>
+              key={recipe.id}
+              className="p-4 border-b border-gray-300 flex items-center cursor-pointer"
+              onClick={() => navigate(formatLink(recipe.name, recipe.id))}
+            >
+
+                <img
+                  src={recipe.photo}
+                  alt={recipe.name}
+                  className="w-16 h-16 mr-4 object-cover rounded"
+                />
+                <div>
+                  <h3 className="font-bold text-lg">{recipe.name}</h3>
+                  <p className="text-sm text-gray-600">
+                    {recipe.kitchen} | {recipe.type}
+                  </p>
+                  <p className="text-sm text-gray-500 mt-2">
+                    <strong>Preferencje:</strong> {recipe.foodPreferences}
+                  </p>
+                  <p className="text-sm text-gray-500">
+                    <strong>Kalorie:</strong> {recipe.calories} kcal
+                  </p>
                   </div>
                 </div>
               ))

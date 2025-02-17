@@ -4,8 +4,8 @@ import axiosClient from '../axiosClient';
 import { useStateContext } from "../contexts/ContextProvider";
 
 const Register = ({ setAuthMode }) => {
-    const [error, setError] = useState("");
-    const [success, setSuccess] = useState("");
+    const [error] = useState("");
+    const [success] = useState("");
     const {setUser,setToken}=useStateContext();
 
     const loginRef = useRef();
