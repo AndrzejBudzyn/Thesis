@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 
 const ShopListUserPanel = () => {
-  const items = Array.from({ length: 30 }, (_, i) => ({
+  const items = Array.from({ length:1 }, (_, i) => ({
     name: `Produkt ${i + 1}`,
     progress: Math.floor(Math.random() * 101), // Losowy procent ukończenia dla każdego produktu
   }));
