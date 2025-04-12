@@ -1,5 +1,4 @@
 import React from "react";
-import { Navbar, Button } from "flowbite-react";
 import { Link } from "react-router-dom";
 import { useStateContext } from "../contexts/ContextProvider";
 import axiosClient from "../axiosClient";
@@ -20,62 +19,64 @@ export default function Header() {
   };
 
   return (
-    <Navbar fluid rounded className="bg-yellow-100 border-b border-gray-300 p-7">
-      <div className="flex w-full items-center justify-between">
-        <Navbar.Brand href="/">
-          <img
-            src="/Logo.png"
-            className="mr-8 h-8 sm:h-16"
-            alt="Przepisi Logo"
-          />
-          <span className="self-center whitespace-nowrap text-2xl font-semibold text-amber-500">
-            Przepisi
-          </span>
-        </Navbar.Brand>
+    <header className="bg-gradient-to-r from-yellow-50 to-yellow-100 border-b border-gray-300 p-4 lg:p-7 transition duration-300">
+      <div className="container mx-auto flex w-full items-center justify-between">
+        {/* Logo i nazwa */}
+        <div className="flex items-center">
+          <Link to="/" className="flex items-center">
+            <img
+              src="/Logo.png"
+              className="mr-3 h-8 sm:h-12 lg:h-16 transition duration-300 hover:scale-105"
+              alt="Przepisy Logo"
+            />
+            <span className="self-center whitespace-nowrap text-xl lg:text-2xl font-semibold text-amber-600 transition duration-300">
+              Przepisy
+            </span>
+          </Link>
+        </div>
 
-        <div className="flex flex-grow justify-center space-x-10">
-          <Navbar.Link
-            as={Link}
+        {/* Nawigacja */}
+        <div className="flex flex-grow justify-center space-x-4 lg:space-x-10">
+          <Link
             to="/"
-            className="text-brown-800 hover:text-orange-500"
+            className="text-brown-800 hover:text-orange-500 font-medium transition duration-200"
           >
             Strona główna
-          </Navbar.Link>
-          <Navbar.Link
-            as={Link}
+          </Link>
+          <Link
             to="/search"
-            className="text-brown-800 hover:text-orange-500"
+            className="text-brown-800 hover:text-orange-500 font-medium transition duration-200"
           >
             Wyszukaj
-          </Navbar.Link>
+          </Link>
           {token && (
-            <Navbar.Link
-              as={Link}
+            <Link
               to="/profile"
-              className="text-brown-800 hover:text-orange-500"
+              className="text-brown-800 hover:text-orange-500 font-medium transition duration-200"
             >
               Profil
-            </Navbar.Link>
+            </Link>
           )}
         </div>
 
-        <div className="flex items-center">
+        {/* Przyciski */}
+        <div className="flex items-center space-x-4">
           {token ? (
-            <Button
-              className="bg-red-500 hover:bg-red-600 text-white"
+            <button
+              className="bg-red-500 hover:bg-red-600 text-white font-medium transition duration-200 px-4 py-2 rounded-lg shadow-md hover:shadow-lg" // Dodano cień
               onClick={handleLogout}
             >
               Wyloguj się
-            </Button>
+            </button>
           ) : (
             <Link to="/auth">
-              <Button className="bg-[#FF914D] hover:bg-orange-600 text-white">
-                Get started
-              </Button>
+              <button className="bg-[#FF914D] hover:bg-orange-600 text-white font-medium transition duration-200 px-4 py-2 rounded-lg shadow-md hover:shadow-lg"> {/* Dodano cień */}
+                Zacznij
+              </button>
             </Link>
           )}
         </div>
       </div>
-    </Navbar>
+    </header>
   );
 }
