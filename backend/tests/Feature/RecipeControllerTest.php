@@ -9,7 +9,7 @@ class RecipeControllerTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function itReturnsEmptyArrayWhenNoRecipes()
+    public function testItReturnsEmptyArrayWhenNoRecipes()
     {
         $response = $this->getJson('/api/recipes');
 
