@@ -9,7 +9,7 @@ const AuthForm = () => {
 
 
   return (
-    <div className="flex flex-col h-screen bg-green-100">
+    <div className="flex flex-col h-flex bg-green-100">
       
       <Header />
 
