@@ -4,8 +4,8 @@ import { useStateContext } from "../contexts/ContextProvider";
 import { Label, TextInput, Button } from "flowbite-react";
 
 const Register = ({ setAuthMode }) => {
-    const [error, setError] = useState(""); // Use setError to update error state
-    const [success, setSuccess] = useState(""); // Use setSuccess to update success state
+    const [error, setError] = useState(""); 
+    const [success, setSuccess] = useState(""); 
     const { setUser, setToken } = useStateContext();
 
     const loginRef = useRef();
@@ -29,10 +29,10 @@ const Register = ({ setAuthMode }) => {
             .then(({ data }) => {
                 setUser(data.user);
                 setToken(data.token);
-                setSuccess("Registration successful!"); // Set success message
-                setError(""); // Clear any previous errors
+                setSuccess("Registration successful!"); 
+                setError(""); 
 
-                // Clear form fields after successful registration (optional)
+                
                 loginRef.current.value = "";
                 emailRef.current.value = "";
                 passwordRef.current.value = "";
@@ -42,8 +42,8 @@ const Register = ({ setAuthMode }) => {
             })
             .catch((err) => {
                 console.error(err);
-                setError("Registration failed. Please check your input."); // Set error message
-                setSuccess(""); // Clear any previous success messages
+                setError("Registration failed. Please check your input."); 
+                setSuccess(""); 
             });
     };
 
@@ -53,8 +53,8 @@ const Register = ({ setAuthMode }) => {
                 Zarejestruj się
             </h2>
 
-            {error && <p className="text-red-500 mb-4">{error}</p>} {/* Display error message */}
-            {success && <p className="text-green-500 mb-4">{success}</p>} {/* Display success message */}
+            {error && <p className="text-red-500 mb-4">{error}</p>} 
+            {success && <p className="text-green-500 mb-4">{success}</p>} 
 
             <form onSubmit={handleSubmit} className="space-y-6 mt-12">
                 <div>

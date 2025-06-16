@@ -140,7 +140,7 @@ class RecipeController extends Controller
             'preparation.*.items' => 'nullable|array',
             'preparation.*.items.*' => 'nullable|string|max:255',
             'calories' => 'required|integer|min:0',
-            'foodPreferences' => 'required|integer|min:0',
+            'foodPreferences' => 'nullable|string|max:255',
             'type' => 'required|string|max:255',
             'kitchen' => 'nullable|string|max:255',
             'foodPreferences' => 'nullable|string|max:255',

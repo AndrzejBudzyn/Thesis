@@ -8,7 +8,9 @@ const App = () => {
   const [recipes, setRecipes] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [ingredientSearchQuery, setIngredientSearchQuery] = useState("");
+  const [excludedIngredientSearchQuery, setExcludedIngredientSearchQuery] = useState("");
   const [kitchenSearchQuery, setKitchenSearchQuery] = useState("");
+  const [excludedIngredients, setExcludedIngredients] = useState([]);
   const [filters, setFilters] = useState({
     type: "",
     kitchen: "",
@@ -45,20 +47,24 @@ const App = () => {
   const uniqueKitchens = [...new Set(recipes.map((r) => r.kitchen))].filter((kitchen) =>
     kitchen.toLowerCase().includes(kitchenSearchQuery.toLowerCase())
   );
-  const uniqueIngredients = [...new Set(recipes.flatMap((r) =>
-    JSON.parse(r.ingredients).map((ing) => ing.ingredient).filter(Boolean)
-  ))].filter((ingredient) =>
-    ingredient.toLowerCase().includes(ingredientSearchQuery.toLowerCase())
-  );
+  const uniqueIngredients = [...new Set(
+    recipes.flatMap((r) =>
+      JSON.parse(r.ingredients).map((ing) => ing.ingredient).filter(Boolean)
+    )
+  )].sort();
+
   const uniqueFoodPreferences = [...new Set(recipes.map((r) => r.foodPreferences))];
 
   const filteredRecipes = recipes.filter((recipe) => {
+    const recipeIngredients = JSON.parse(recipe.ingredients).map((i) => i.ingredient);
+
     const matchesType = filters.type ? recipe.type === filters.type : true;
     const matchesKitchen = filters.kitchen ? recipe.kitchen === filters.kitchen : true;
     const matchesIngredients = filters.ingredients.length > 0
-      ? filters.ingredients.every((ing) =>
-        JSON.parse(recipe.ingredients).some((rIng) => rIng.ingredient === ing)
-      )
+      ? filters.ingredients.every((ing) => recipeIngredients.includes(ing))
+      : true;
+    const matchesExcludedIngredients = excludedIngredients.length > 0
+      ? !excludedIngredients.some((ing) => recipeIngredients.includes(ing))
       : true;
     const matchesFoodPreferences = filters.foodPreferences
       ? recipe.foodPreferences === filters.foodPreferences
@@ -73,6 +79,7 @@ const App = () => {
       matchesType &&
       matchesKitchen &&
       matchesIngredients &&
+      matchesExcludedIngredients &&
       matchesFoodPreferences &&
       matchesSearchQuery &&
       matchesCalories
@@ -112,10 +119,9 @@ const App = () => {
         <aside className="w-full lg:w-1/4 border border-gray-300 rounded-lg p-4 bg-white shadow-md">
           <h2 className="text-lg font-semibold mb-4">Filtry</h2>
           <div>
+            {/* Typ dania */}
             <details className="mb-4">
-              <summary className="cursor-pointer font-semibold">
-                Typ dania
-              </summary>
+              <summary className="cursor-pointer font-semibold">Typ dania</summary>
               <ul className="mt-2">
                 {uniqueTypes.map((type) => (
                   <li key={type}>
@@ -132,10 +138,9 @@ const App = () => {
               </ul>
             </details>
 
+            {/* Kuchnia */}
             <details className="mb-4">
-              <summary className="cursor-pointer font-semibold">
-                Kuchnia
-              </summary>
+              <summary className="cursor-pointer font-semibold">Kuchnia</summary>
               <div className="mt-2">
                 <input
                   type="text"
@@ -161,10 +166,9 @@ const App = () => {
               </div>
             </details>
 
+            {/* Składniki */}
             <details>
-              <summary className="cursor-pointer font-semibold">
-                Składniki
-              </summary>
+              <summary className="cursor-pointer font-semibold">Składniki</summary>
               <div className="mt-2">
                 <input
                   type="text"
@@ -174,26 +178,67 @@ const App = () => {
                   className="p-2 mb-2 border border-black w-full rounded"
                 />
                 <ul className="h-40 overflow-y-scroll border border-gray-200 rounded">
-                  {uniqueIngredients.map((ingredient) => (
-                    <li key={ingredient}>
-                      <label className="block px-4 py-2">
-                        <input
-                          type="checkbox"
-                          checked={filters.ingredients.includes(ingredient)}
-                          onChange={() => toggleIngredientFilter(ingredient)}
-                        />
-                        <span className="ml-2">{ingredient}</span>
-                      </label>
-                    </li>
-                  ))}
+                  {uniqueIngredients
+                    .filter((ingredient) =>
+                      ingredient.toLowerCase().includes(ingredientSearchQuery.toLowerCase())
+                    )
+                    .map((ingredient) => (
+                      <li key={ingredient}>
+                        <label className="block px-4 py-2">
+                          <input
+                            type="checkbox"
+                            checked={filters.ingredients.includes(ingredient)}
+                            onChange={() => toggleIngredientFilter(ingredient)}
+                          />
+                          <span className="ml-2">{ingredient}</span>
+                        </label>
+                      </li>
+                    ))}
                 </ul>
               </div>
             </details>
 
+            {/* Unikaj składników */}
+            <details className="mt-4">
+              <summary className="cursor-pointer font-semibold">Unikaj składników</summary>
+              <div className="mt-2">
+                <input
+                  type="text"
+                  value={excludedIngredientSearchQuery}
+                  onChange={(e) => setExcludedIngredientSearchQuery(e.target.value)}
+                  placeholder="Wyszukaj składnik do unikania..."
+                  className="p-2 mb-2 border border-black w-full rounded"
+                />
+                <ul className="h-40 overflow-y-scroll border border-gray-200 rounded">
+                  {uniqueIngredients
+                    .filter((ingredient) =>
+                      ingredient.toLowerCase().includes(excludedIngredientSearchQuery.toLowerCase())
+                    )
+                    .map((ingredient) => (
+                      <li key={ingredient}>
+                        <label className="block px-4 py-2">
+                          <input
+                            type="checkbox"
+                            checked={excludedIngredients.includes(ingredient)}
+                            onChange={() =>
+                              setExcludedIngredients((prev) =>
+                                prev.includes(ingredient)
+                                  ? prev.filter((ing) => ing !== ingredient)
+                                  : [...prev, ingredient]
+                              )
+                            }
+                          />
+                          <span className="ml-2">{ingredient}</span>
+                        </label>
+                      </li>
+                    ))}
+                </ul>
+              </div>
+            </details>
+
+            {/* Preferencje żywieniowe */}
             <details>
-              <summary className="cursor-pointer font-semibold">
-                Preferencje żywieniowe
-              </summary>
+              <summary className="cursor-pointer font-semibold">Preferencje żywieniowe</summary>
               <ul className="mt-2">
                 {uniqueFoodPreferences.map((preference) => (
                   <li key={preference}>
@@ -210,6 +255,7 @@ const App = () => {
               </ul>
             </details>
 
+            {/* Kalorie */}
             <details className="mb-4">
               <summary className="cursor-pointer font-semibold">Kalorie</summary>
               <div className="mt-2">
@@ -232,6 +278,7 @@ const App = () => {
           </div>
         </aside>
 
+        {/* Lista przepisów */}
         <section className="flex flex-col flex-1 px-4 lg:px-6">
           <div className="flex items-center mb-4">
             <input
